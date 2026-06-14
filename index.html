@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lead Generator - Smart B2B Lead Discovery</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <span class="logo-icon">🤖</span>
+                <span class="logo-text">LeadAI</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li><a href="#" class="btn-login">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>AI-Powered Lead Generation at Scale</h1>
+                <p>Discover, qualify, and convert high-intent leads with artificial intelligence. Contact them via email or SMS automatically.</p>
+                <div class="hero-buttons">
+                    <button class="btn btn-primary" onclick="scrollTo('#generator')">Try Free Demo</button>
+                    <button class="btn btn-secondary">Watch Demo</button>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="illustration">📊</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lead Generator Tool -->
+    <section id="generator" class="generator-section">
+        <div class="container">
+            <h2>Generate Qualified Leads</h2>
+            <p class="section-subtitle">Use AI to find your ideal customers and contact them instantly</p>
+            
+            <div class="generator-card">
+                <form id="leadForm" onsubmit="generateLeads(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="industry">Industry</label>
+                            <input type="text" id="industry" placeholder="e.g., SaaS, E-commerce, Healthcare" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="targetRole">Target Decision Maker</label>
+                            <input type="text" id="targetRole" placeholder="e.g., CEO, Marketing Manager" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="companySize">Company Size</label>
+                            <select id="companySize" required>
+                                <option value="">Select size</option>
+                                <option value="1-10">1-10 employees</option>
+                                <option value="11-50">11-50 employees</option>
+                                <option value="51-200">51-200 employees</option>
+                                <option value="201-500">201-500 employees</option>
+                                <option value="500+">500+ employees</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="location">Location</label>
+                            <input type="text" id="location" placeholder="e.g., USA, Europe, Global" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="painPoints">Pain Points / Keywords</label>
+                            <input type="text" id="painPoints" placeholder="e.g., lead generation, automation, customer retention" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary full-width">Generate Leads with AI</button>
+                </form>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>AI is analyzing and generating qualified leads...</p>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results" class="results-section" style="display: none;">
+                <div class="results-header">
+                    <h3>Generated Leads</h3>
+                    <button class="btn btn-secondary" onclick="exportLeads()">📥 Export CSV</button>
+                </div>
+                <div id="leadsList" class="leads-list"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Email Modal -->
+    <div id="emailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Send Email to Lead</h3>
+                <button class="modal-close" onclick="closeEmailModal()">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Company</label>
+                    <input type="text" id="modalEmailCompany" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="modalEmailAddress" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Contact Role</label>
+                    <input type="text" id="modalContactRole" disabled>
+                </div>
+
+                <div class="form-group">
+                    <label>Select Template</label>
+                    <select id="emailTemplate" onchange="updateEmailPreview()">
+                        <option value="initial">Initial Outreach</option>
+                        <option value="followup">Follow-up</option>
+                        <option value="demo">Demo Invitation</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Subject</label>
+                    <div id="emailSubjectPreview" class="preview-box"></div>
+                    <button type="button" class="btn btn-secondary" onclick="customizeEmail()" style="margin-top: 8px;">✏️ Customize</button>
+                </div>
+
+                <div class="form-group">
+                    <label>Email Body</label>
+                    <textarea id="emailBodyPreview" class="preview-box preview-textarea" readonly></textarea>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeEmailModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="sendEmail()">📧 Send Email</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SMS Modal -->
+    <div id="smsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Send SMS to Lead</h3>
+                <button class="modal-close" onclick="closeSMSModal()">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Company</label>
+                    <input type="text" id="modalSMSCompany" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="modalPhoneNumber" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Contact Role</label>
+                    <input type="text" id="modalSMSRole" disabled>
+                </div>
+
+                <div class="form-group">
+                    <label>Select Template</label>
+                    <select id="smsTemplate" onchange="updateSMSPreview()">
+                        <option value="initial">Initial Message</option>
+                        <option value="followup">Follow-up</option>
+                        <option value="demo">Demo Link</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Message Preview</label>
+                    <textarea id="smsPreview" class="preview-box preview-textarea" readonly></textarea>
+                    <div id="charCount" style="font-size: 12px; margin-top: 8px; text-align: right; font-weight: 600;"></div>
+                    <button type="button" class="btn btn-secondary" onclick="customizeSMS()" style="margin-top: 8px;">✏️ Customize</button>
+                </div>
+
+                <div class="info-box">
+                    <strong>💡 Tip:</strong> Keep messages under 160 characters for best delivery rates.
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeSMSModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="sendSMS()">💬 Send SMS</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <h2>Why Choose LeadAI?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Precision Targeting</h3>
+                    <p>AI identifies high-intent prospects matching your exact criteria</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📧</div>
+                    <h3>Email Automation</h3>
+                    <p>Send personalized emails to multiple leads with templates</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💬</div>
+                    <h3>SMS Campaigns</h3>
+                    <p>Reach leads instantly with SMS messages and track engagement</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>10x Faster</h3>
+                    <p>Generate qualified leads in minutes instead of weeks</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📈</div>
+                    <h3>Analytics Dashboard</h3>
+                    <p>Track conversion rates and optimize your campaigns</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔐</div>
+                    <h3>Data Privacy</h3>
+                    <p>Enterprise-grade security and GDPR compliance</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing">
+        <div class="container">
+            <h2>Simple, Transparent Pricing</h2>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3>Starter</h3>
+                    <div class="price">$29<span>/month</span></div>
+                    <ul class="features-list">
+                        <li>✓ 100 leads/month</li>
+                        <li>✓ Email + SMS templates</li>
+                        <li>✓ 50 email credits</li>
+                        <li>✓ 50 SMS credits</li>
+                        <li>✗ API access</li>
+                    </ul>
+                    <button class="btn btn-secondary">Get Started</button>
+                </div>
+                <div class="pricing-card featured">
+                    <div class="badge">Most Popular</div>
+                    <h3>Professional</h3>
+                    <div class="price">$99<span>/month</span></div>
+                    <ul class="features-list">
+                        <li>✓ 1,000 leads/month</li>
+                        <li>✓ Custom email/SMS templates</li>
+                        <li>✓ 500 email credits</li>
+                        <li>✓ 500 SMS credits</li>
+                        <li>✓ API access</li>
+                    </ul>
+                    <button class="btn btn-primary">Get Started</button>
+                </div>
+                <div class="pricing-card">
+                    <h3>Enterprise</h3>
+                    <div class="price">Custom</div>
+                    <ul class="features-list">
+                        <li>✓ Unlimited leads</li>
+                        <li>✓ Unlimited emails/SMS</li>
+                        <li>✓ Dedicated account manager</li>
+                        <li>✓ Custom integrations</li>
+                        <li>✓ 24/7 support</li>
+                    </ul>
+                    <button class="btn btn-secondary">Contact Sales</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <h2>Get Started Today</h2>
+            <p>Join 500+ companies generating and contacting qualified leads with AI</p>
+            <form class="contact-form" onsubmit="submitContact(event)">
+                <input type="email" placeholder="your@email.com" required>
+                <input type="text" placeholder="Company name" required>
+                <button type="submit" class="btn btn-primary">Request Demo</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 LeadAI. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Blog</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
